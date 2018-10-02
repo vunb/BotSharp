@@ -1,4 +1,6 @@
 ﻿using BotSharp.Platform.Models;
+using BotSharp.Platform.Models.AiRequest;
+using BotSharp.Platform.Models.AiResponse;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,27 +12,24 @@ namespace BotSharp.Platform.Abstraction
     /// Platform abstraction
     /// Implement this interface to build a Chatbot platform
     /// </summary>
-    public interface IPlatformBuilder<TStorage, TAgent> 
-        where TStorage : IAgentStorage<TAgent>, new()
+    public interface IPlatformBuilder<TAgent>
     {
+        /// <summary>
+        /// Agent storage
+        /// </summary>
+        IAgentStorage<TAgent> Storage { get; set; }
+
         /// <summary>
         /// Parse options for the incoming text or voice request from the sender.
         /// </summary>
         // DialogRequestOptions RequestOptions { get; set; }
 
         /// <summary>
-        /// Convert platform specific agent to standard agent format
+        /// Convert platform specific data to standard training corpus format
         /// </summary>
         /// <param name="agent"></param>
         /// <returns></returns>
-        StandardAgent StandardizeAgent(TAgent agent);
-
-        /// <summary>
-        /// Recover standard agent to specific agent format
-        /// </summary>
-        /// <param name="agent"></param>
-        /// <returns></returns>
-        TAgent RecoverAgent(StandardAgent agent);
+        TrainingCorpus ExtractorCorpus(TAgent agent);
 
         /// <summary>
         /// 
@@ -39,5 +38,9 @@ namespace BotSharp.Platform.Abstraction
         /// <param name="agent"></param>
         /// <returns></returns>
         bool SaveAgent(TAgent agent);
+
+        Task<bool> Train(TAgent agent, TrainingCorpus corpus);
+
+        AiResponse TextRequest(AiRequest request);
     }
 }

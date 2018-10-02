@@ -1,6 +1,7 @@
 ﻿using BotSharp.Core;
 using BotSharp.Platform.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Platform.Articulate.Models;
 using Platform.Articulate.ViewModels;
@@ -16,11 +17,13 @@ namespace Platform.Articulate.Controllers
     [Route("[controller]")]
     public class EntityController : ControllerBase
     {
-        private ArticulateAi<AgentStorageInMemory<AgentModel>, AgentModel> builder;
+        private readonly IConfiguration configuration;
+        private ArticulateAi<AgentModel> builder;
 
-        public EntityController()
+        public EntityController(IConfiguration configuration)
         {
-            builder = new ArticulateAi<AgentStorageInMemory<AgentModel>, AgentModel>();
+            builder = new ArticulateAi<AgentModel>();
+            builder.PlatformConfig = configuration.GetSection("ArticulateAi");
         }
 
         [HttpGet("{entityId}")]
@@ -40,9 +43,8 @@ namespace Platform.Articulate.Controllers
         [HttpGet("/agent/{agentId}/entity")]
         public EntityPageViewModel GetAgentEntities([FromRoute] string agentId, [FromQuery] int start, [FromQuery] int limit)
         {
-            var entities = new List<EntityModel>();
-
-            return new EntityPageViewModel { Entities = entities, Total = entities.Count };
+            var agent = builder.GetAgentById(agentId);
+            return new EntityPageViewModel { Entities = agent.Entities.Select(x => x as EntityModel).ToList(), Total = agent.Entities.Count };
         }
 
         [HttpPost]
@@ -57,7 +59,7 @@ namespace Platform.Articulate.Controllers
             }
 
             var agent = builder.GetAgentByName(entity.Agent);
-
+            entity.Id = Guid.NewGuid().ToString();
             agent.Entities.Add(entity);
 
             builder.SaveAgent(agent);

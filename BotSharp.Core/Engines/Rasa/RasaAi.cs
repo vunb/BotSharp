@@ -129,7 +129,7 @@ namespace BotSharp.Core.Engines
                 });
                 usedEntities = usedEntities.Distinct().ToList();
 
-                var entity_synonyms = corpus.Entities.Where(x => usedEntities.Contains(x.EntityType)).ToList();
+                var entity_synonyms = corpus.Entities.Where(x => usedEntities.Contains(x.Entity)).ToList();
 
                 var data = new RasaTrainingData
                 {
@@ -175,8 +175,8 @@ namespace BotSharp.Core.Engines
                 });
 
                 // set empty synonym to null
-                data.Entities
-                    .Where(x => x.Synonyms != null)
+                /*data.Entities
+                    .Where(x => x.Entity != null)
                     .ToList()
                     .ForEach(entity =>
                     {
@@ -184,7 +184,7 @@ namespace BotSharp.Core.Engines
                         {
                             entity.Synonyms = null;
                         }
-                    });
+                    });*/
 
                 string json = JsonConvert.SerializeObject(new { rasa_nlu_data = data },
                     new JsonSerializerSettings

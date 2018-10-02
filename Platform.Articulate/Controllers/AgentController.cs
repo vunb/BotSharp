@@ -4,6 +4,7 @@ using BotSharp.Core.Engines;
 using BotSharp.Platform.Abstraction;
 using BotSharp.Platform.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Platform.Articulate;
 using Platform.Articulate.Models;
@@ -20,17 +21,19 @@ namespace Platform.Articulate.Controllers
     [Route("[controller]")]
     public class AgentController : ControllerBase
     {
+        private readonly IConfiguration configuration;
         private readonly IBotPlatform _platform;
-        private ArticulateAi<AgentStorageInMemory<AgentModel>, AgentModel> builder;
+        private ArticulateAi<AgentModel> builder;
 
         /// <summary>
         /// Initialize agent controller and get a platform instance
         /// </summary>
         /// <param name="platform"></param>
-        public AgentController(IBotPlatform platform)
+        public AgentController(IBotPlatform platform, IConfiguration configuration)
         {
             _platform = platform;
-            builder = new ArticulateAi<AgentStorageInMemory<AgentModel>, AgentModel>();
+            builder = new ArticulateAi<AgentModel>();
+            builder.PlatformConfig = configuration.GetSection("ArticulateAi");
         }
 
         [HttpPost]
@@ -45,8 +48,7 @@ namespace Platform.Articulate.Controllers
             }
 
             // convert to standard Agent structure
-            var builder = new ArticulateAi<AgentStorageInMemory<AgentModel>, AgentModel>();
-            agent.Id = Guid.NewGuid().ToString();
+            agent.Id = new Random().Next(Int32.MaxValue).ToString();
             agent.Name = agent.AgentName;
             builder.SaveAgent(agent);
 
@@ -57,7 +59,7 @@ namespace Platform.Articulate.Controllers
         public List<AgentModel> GetAgent()
         {
             var results = builder.GetAllAgents();
-            var agents = results.Select(x => x as AgentModel).ToList();
+            var agents = results.ToList();
 
             return agents;
         }
@@ -73,23 +75,7 @@ namespace Platform.Articulate.Controllers
         [HttpGet("name/{agentName}")]
         public AgentModel GetAgentByName([FromRoute] string agentName)
         {
-            AgentModel agent = null;
-
-            string dataDir = Path.Combine(AppDomain.CurrentDomain.GetData("DataPath").ToString(), "Articulate");
-
-            var agentPaths = Directory.GetFiles(dataDir).Where(x => Regex.IsMatch(x, @"agent-\d+\.json")).ToList();
-
-            for (int i = 0; i < agentPaths.Count; i++)
-            {
-                string json = System.IO.File.ReadAllText(agentPaths[i]);
-
-                var agentTmp = JsonConvert.DeserializeObject<AgentModel>(json);
-
-                if(agentTmp.Name == agentName)
-                {
-                    agent = agentTmp;
-                }
-            }
+            var agent = builder.GetAgentByName(agentName);
 
             return agent;
         }

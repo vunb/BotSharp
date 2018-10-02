@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BotSharp.Core.Abstractions;
 using BotSharp.Core.Agents;
 using BotSharp.Core.Intents;
+using BotSharp.Platform.Models;
 using DotNetToolkit;
 using EntityFrameworkCore.BootKit;
 using Microsoft.EntityFrameworkCore;
@@ -57,8 +58,7 @@ namespace BotSharp.Core.Engines
 
             var settings = new PipeSettings
             {
-                ProjectDir = options.AgentDir,
-                AlgorithmDir = Path.Combine(AppDomain.CurrentDomain.GetData("ContentRootPath").ToString(), "Algorithms")
+                ProjectDir = options.AgentDir
             };
 
             settings.ModelDir = Path.Combine(options.AgentDir, options.Model);
@@ -66,11 +66,6 @@ namespace BotSharp.Core.Engines
             if (!Directory.Exists(settings.ProjectDir))
             {
                 Directory.CreateDirectory(settings.ProjectDir);
-            }
-
-            if (!Directory.Exists(settings.TempDir))
-            {
-                Directory.CreateDirectory(settings.TempDir);
             }
 
             if (!Directory.Exists(settings.ModelDir))

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BotSharp.Platform.Models;
 
 namespace BotSharp.Core.Engines.BotSharp
 {
@@ -30,7 +31,7 @@ namespace BotSharp.Core.Engines.BotSharp
             List<TrainingIntentExpression<TrainingIntentExpressionPart>> userSays = corpus.UserSays;
             List<List<TrainingData>> list = new List<List<TrainingData>>();
 
-            string rawTrainingDataFileName = System.IO.Path.Combine(Settings.TempDir, "ner-crf.corpus.txt");
+            string rawTrainingDataFileName = System.IO.Path.Combine(Settings.ModelDir, "ner-crf.corpus.txt");
             string modelFileName = System.IO.Path.Combine(Settings.ModelDir, meta.Model);
 
             using (FileStream fs = new FileStream(rawTrainingDataFileName, FileMode.Create))
