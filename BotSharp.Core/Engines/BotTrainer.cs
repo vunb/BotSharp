@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BotSharp.Core.Abstractions;
-using BotSharp.Core.Agents;
-using BotSharp.Core.Intents;
 using BotSharp.Platform.Models;
+using BotSharp.Platform.Models.MachineLearning;
 using DotNetToolkit;
 using EntityFrameworkCore.BootKit;
 using Microsoft.EntityFrameworkCore;
@@ -34,17 +33,18 @@ namespace BotSharp.Core.Engines
             this.agentId = agentId;
         }
 
-        public async Task<ModelMetaData> Train(Agent agent, BotTrainOptions options)
+        public async Task<ModelMetaData> Train(AgentBase agent, BotTrainOptions options)
         {
             var data = new NlpDoc();
 
             // Get NLP Provider
             var config = (IConfiguration)AppDomain.CurrentDomain.GetData("Configuration");
             var assemblies = (string[])AppDomain.CurrentDomain.GetData("Assemblies");
-            var platform = config.GetSection($"BotPlatform").Value;
-            string providerName = config.GetSection($"{platform}:Provider").Value;
+            var platform = config.GetSection($"platform").Value;
+            var engine = config.GetSection($"{platform}:botEngine").Value;
+            string providerName = config.GetSection($"{engine}:Provider").Value;
             var provider = TypeHelper.GetInstance(providerName, assemblies) as INlpProvider;
-            provider.Configuration = config.GetSection(platform);
+            provider.Configuration = config.GetSection(engine);
 
             var pipeModel = new PipeModel
             {
@@ -76,6 +76,7 @@ namespace BotSharp.Core.Engines
             var meta = new ModelMetaData
             {
                 Platform = platform,
+                BotEngine = engine,
                 Language = agent.Language,
                 TrainingDate = DateTime.UtcNow,
                 Version = config.GetValue<String>($"Version"),
