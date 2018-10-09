@@ -1,10 +1,9 @@
-﻿using Colorful;
+﻿using BotSharp.Core.Modules;
 using DotNetToolkit.JwtHelper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -12,8 +11,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using Console = Colorful.Console;
 
 namespace BotSharp.WebHost
 {
@@ -22,7 +19,10 @@ namespace BotSharp.WebHost
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            this.modulesStartup = new ModulesStartup(configuration);
         }
+
+        private readonly ModulesStartup modulesStartup;
 
         public IConfiguration Configuration { get; }
 
@@ -31,7 +31,7 @@ namespace BotSharp.WebHost
             services.AddCors();
             services.AddJwtAuth(Configuration);
 
-            services.AddMvc(options =>
+            var mvcBuilder = services.AddMvc(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
             }).AddJsonOptions(options =>
@@ -39,6 +39,10 @@ namespace BotSharp.WebHost
                 options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
+
+            PlatformModuleAssembyLoader.LoadAssemblies(Configuration, assembly => mvcBuilder.AddApplicationPart(assembly));
+
+            this.modulesStartup.ConfigureServices(services);
 
             services.AddSwaggerGen(c =>
             {
@@ -94,9 +98,9 @@ namespace BotSharp.WebHost
                 c.DocumentTitle = info.Title;
                 c.InjectStylesheet(Configuration.GetValue<String>("Swagger:Stylesheet"));
 
-                Console.WriteLine($"{info.Title} [{info.Version}] {info.License.Name}", Color.Gray);
-                Console.WriteLine($"{info.Description}", Color.Gray);
-                Console.WriteLine($"{info.Contact.Name}", Color.Gray);
+                Console.WriteLine($"{info.Title} [{info.Version}] {info.License.Name}");
+                Console.WriteLine($"{info.Description}");
+                Console.WriteLine($"{info.Contact.Name}");
             });
 
             app.Use(async (context, next) =>
@@ -125,25 +129,6 @@ namespace BotSharp.WebHost
             loader.Env = env;
             loader.Config = Configuration;
             loader.Load();*/
-
-            // load dll dynamic
-            /*Assembly library = Assembly.LoadFile(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "BotSharp.Platform.Articulate.dll"));
-            Type myClass = (from type in library.GetExportedTypes()
-                where typeof(IMyInterface).IsAssignableFrom(type)
-                select type)
-                .Single();*/
-
-            var platform = Configuration.GetValue<string>("Platform");
-            var engine = Configuration.GetValue<string>($"{platform}:BotEngine");
-            Formatter[] settings = new Formatter[]
-            {
-                new Formatter(platform, Color.Yellow),
-                new Formatter(engine, Color.Yellow),
-            };
-
-            Console.WriteLine();
-            Console.WriteLineFormatted("Platform Emulator: {0} powered by {1} engine.", Color.White, settings);
-            Console.WriteLine();
         }
     }
 }
