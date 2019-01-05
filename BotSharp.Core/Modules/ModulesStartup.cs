@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -31,6 +32,18 @@ namespace BotSharp.Core.Modules
                 throw new ArgumentNullException(nameof(configuration));
             ModulesOptions options = configuration.Get<ModulesOptions>();
 
+            if (options.Modules.Count == 0)
+            {
+                options.Modules.Add(new ModuleOptions
+                {
+                    Name = "DialogflowAi",
+                    Type = "BotSharp.Platform.Dialogflow"
+                });
+
+                Console.WriteLine($"Platform emulator not found.", Color.Red);
+                Console.WriteLine($"Using default emulator: DialogflowAi, BotSharp.Platform.Dialogflow.");
+            }
+
             this._modules = options.Modules
                 .Select(s =>
                 {
@@ -47,6 +60,7 @@ namespace BotSharp.Core.Modules
                     else
                     {
                         IModule module = (IModule)Activator.CreateInstance(type);
+                        Console.WriteLine($"Loaded module \"{s.Type}\"", Color.Green);
                         return module;
                     }
                 }
@@ -77,11 +91,12 @@ namespace BotSharp.Core.Modules
         /// <param name="app">
         /// Instance of <see cref="IApplicationBuilder"/>.
         /// </param>
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             foreach (IModule module in this._modules)
             {
-                module.Configure(app);
+                if (module == null) continue;
+                module.Configure(app, env);
             }
         }
     }

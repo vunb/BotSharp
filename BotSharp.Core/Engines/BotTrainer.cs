@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BotSharp.Core.Abstractions;
+using BotSharp.Platform.Abstraction;
 using BotSharp.Platform.Models;
 using BotSharp.Platform.Models.MachineLearning;
 using DotNetToolkit;
 using EntityFrameworkCore.BootKit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,9 +23,11 @@ namespace BotSharp.Core.Engines
         private readonly Database dc;
 
         private readonly string agentId;
+        private readonly IPlatformSettings settings;
 
-        public BotTrainer()
+        public BotTrainer(IPlatformSettings setting)
         {
+            this.settings = setting;
         }
 
         public BotTrainer(string agentId, Database dc)
@@ -40,11 +43,11 @@ namespace BotSharp.Core.Engines
             // Get NLP Provider
             var config = (IConfiguration)AppDomain.CurrentDomain.GetData("Configuration");
             var assemblies = (string[])AppDomain.CurrentDomain.GetData("Assemblies");
-            var platform = config.GetSection($"platform").Value;
-            var engine = config.GetSection($"{platform}:botEngine").Value;
-            string providerName = config.GetSection($"{engine}:Provider").Value;
+            var platform = config.GetSection($"platformModuleName").Value;
+            var engine = this.settings.BotEngine;
+            string providerName = config.GetSection($"{engine}_{agent.Language}:Provider").Value;
             var provider = TypeHelper.GetInstance(providerName, assemblies) as INlpProvider;
-            provider.Configuration = config.GetSection(engine);
+            provider.Configuration = config.GetSection($"{engine}_{agent.Language}");
 
             var pipeModel = new PipeModel
             {
@@ -92,6 +95,9 @@ namespace BotSharp.Core.Engines
 
             for (int pipeIdx = 0; pipeIdx < pipelines.Count; pipeIdx++)
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 var pipe = TypeHelper.GetInstance(pipelines[pipeIdx], assemblies) as INlpTrain;
                 // set configuration to current section
                 pipe.Configuration = provider.Configuration.GetSection(pipelines[pipeIdx]);
@@ -103,8 +109,11 @@ namespace BotSharp.Core.Engines
                     Time = DateTime.UtcNow
                 };
                 meta.Pipeline.Add(pipeModel);
-
+                
                 await pipe.Train(agent, data, pipeModel);
+
+                stopwatch.Stop();
+                Console.WriteLine($"Executed pipe {pipeModel.Name} elapsed {stopwatch.Elapsed}");
             }
 
             // save model meta data
@@ -115,8 +124,6 @@ namespace BotSharp.Core.Engines
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
             File.WriteAllText(Path.Combine(settings.ModelDir, "model-meta.json"), metaJson);
-
-            Console.WriteLine(metaJson);
 
             return meta;
         }

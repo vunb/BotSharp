@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -40,7 +41,7 @@ namespace BotSharp.WebHost
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
 
-            PlatformModuleAssembyLoader.LoadAssemblies(Configuration, assembly => mvcBuilder.AddApplicationPart(assembly));
+            //PlatformModuleAssembyLoader.LoadAssemblies(Configuration, assembly => mvcBuilder.AddApplicationPart(assembly));
 
             this.modulesStartup.ConfigureServices(services);
 
@@ -98,9 +99,11 @@ namespace BotSharp.WebHost
                 c.DocumentTitle = info.Title;
                 c.InjectStylesheet(Configuration.GetValue<String>("Swagger:Stylesheet"));
 
+                Console.WriteLine();
                 Console.WriteLine($"{info.Title} [{info.Version}] {info.License.Name}");
                 Console.WriteLine($"{info.Description}");
-                Console.WriteLine($"{info.Contact.Name}");
+                Console.WriteLine($"{info.Contact.Name}, {DateTime.UtcNow.ToString()}");
+                Console.WriteLine();
             });
 
             app.Use(async (context, next) =>
@@ -119,6 +122,8 @@ namespace BotSharp.WebHost
             app.UseAuthentication();
 
             app.UseMvc();
+
+            this.modulesStartup.Configure(app, env);
 
             AppDomain.CurrentDomain.SetData("DataPath", Path.Combine(env.ContentRootPath, "App_Data"));
             AppDomain.CurrentDomain.SetData("Configuration", Configuration);
