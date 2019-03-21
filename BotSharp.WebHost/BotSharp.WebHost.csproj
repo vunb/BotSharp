@@ -33,6 +33,7 @@
     <Compile Remove="App_Data\AgentStorage\**" />
     <Compile Remove="App_Data\Corpus\**" />
     <Compile Remove="App_Data\Projects\**" />
+    <Compile Remove="App_Data\SessionStorage\**" />
     <Compile Remove="PublishOutput\**" />
     <Compile Remove="publish\**" />
     <Content Remove="App_Data\AgentArchive\**" />
@@ -40,6 +41,7 @@
     <Content Remove="App_Data\Corpus\**" />
     <Content Remove="App_Data\DbInitializer\**" />
     <Content Remove="App_Data\Projects\**" />
+    <Content Remove="App_Data\SessionStorage\**" />
     <Content Remove="App_Data\TrainingFiles\**" />
     <Content Remove="PublishOutput\**" />
     <Content Remove="publish\**" />
@@ -47,6 +49,7 @@
     <EmbeddedResource Remove="App_Data\AgentStorage\**" />
     <EmbeddedResource Remove="App_Data\Corpus\**" />
     <EmbeddedResource Remove="App_Data\Projects\**" />
+    <EmbeddedResource Remove="App_Data\SessionStorage\**" />
     <EmbeddedResource Remove="PublishOutput\**" />
     <EmbeddedResource Remove="publish\**" />
     <None Remove="App_Data\AgentArchive\**" />
@@ -54,6 +57,7 @@
     <None Remove="App_Data\Corpus\**" />
     <None Remove="App_Data\DbInitializer\**" />
     <None Remove="App_Data\Projects\**" />
+    <None Remove="App_Data\SessionStorage\**" />
     <None Remove="PublishOutput\**" />
     <None Remove="publish\**" />
   </ItemGroup>
@@ -73,7 +77,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetToolkit" Version="1.6.0" />
+    <PackageReference Include="DotNetToolkit" Version="1.7.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
@@ -86,7 +90,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BotSharp.Channel.FacebookMessenger\BotSharp.Channel.FacebookMessenger.csproj" />
     <ProjectReference Include="..\BotSharp.Channel.Weixin\BotSharp.Channel.Weixin.csproj" />
-    <ProjectReference Include="..\BotSharp.Platform.Dialogflow\BotSharp.Platform.Dialogflow.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +100,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Settings\channels.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Settings\OwnThinkAi.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Settings\DialogflowAi.json">
