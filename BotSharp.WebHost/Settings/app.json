@@ -2,7 +2,7 @@
   "version": "0.5.0",
   "assemblies": "BotSharp.Core",
 
-  "platformModuleName": "DialogflowAi",
+  "platformModuleName": "ArticulateAi",
   "overrideFallback": false,
 
   "modules": [

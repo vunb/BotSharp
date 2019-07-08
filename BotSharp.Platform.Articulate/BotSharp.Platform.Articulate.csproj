@@ -2,9 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Configurations>Debug;Release;DEBUG_ARTICULATE</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_ARTICULATE|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 

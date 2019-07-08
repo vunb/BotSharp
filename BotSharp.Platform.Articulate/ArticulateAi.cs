@@ -154,6 +154,7 @@ namespace BotSharp.Platform.Articulate
             var preditor = new BotPredictor();
             var doc = await preditor.Predict(agent, request);
 
+            var sent = doc.Sentences[0];
             var parameters = new Dictionary<String, Object>();
             if (doc.Sentences[0].Entities == null)
             {
@@ -161,7 +162,10 @@ namespace BotSharp.Platform.Articulate
             }
             doc.Sentences[0].Entities.ForEach(x => parameters[x.Entity] = x.Value);
 
-            aiResponse.Intent = doc.Sentences[0].Intent.Label;
+
+            aiResponse.Intent = sent.Intent.Label;
+            aiResponse.Entities = sent.Entities;
+            aiResponse.Text = agent.Domains[0].Intents.FirstOrDefault(x => x.IntentName == sent.Intent.Label)?.Scenario.IntentResponses.FirstOrDefault();
             //aiResponse.Speech = aiResponse.Intent;
 
             return aiResponse;

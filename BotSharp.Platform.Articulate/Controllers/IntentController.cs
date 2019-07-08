@@ -30,7 +30,7 @@ namespace BotSharp.Platform.Articulate.Controllers
         {
             var agent = await builder.GetAgentByIntentId(intentId);
 
-            return agent.Item3.ToObject<IntentViewModel>();
+            return agent?.Item3.ToObject<IntentViewModel>();
         }
 
         [HttpPost]

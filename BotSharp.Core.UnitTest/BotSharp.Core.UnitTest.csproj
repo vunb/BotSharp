@@ -7,7 +7,7 @@
 
     <Platforms>AnyCPU;x64</Platforms>
 
-    <Configurations>Debug;Release;RASA NLU;DIALOGFLOW;RASA;ARTICULATE</Configurations>
+    <Configurations>Debug;Release;RASA NLU;DIALOGFLOW;RASA;ARTICULATE;DEBUG_ARTICULATE</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

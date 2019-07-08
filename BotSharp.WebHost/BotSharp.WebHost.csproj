@@ -4,12 +4,16 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RuntimeIdentifiers>Portable;win10-x64;centos.7-x64</RuntimeIdentifiers>
     <Platforms>AnyCPU;x64</Platforms>
-    <Configurations>Debug;Release;</Configurations>
+    <Configurations>Debug;Release;DEBUG_ARTICULATE</Configurations>
     <UserSecretsId>4ee89154-9131-4e6b-8fd5-d4f04a8d77c4</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DEBUG_ARTICULATE|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;ARTICULATE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RASA|AnyCPU'">
@@ -89,7 +93,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotSharp.Channel.FacebookMessenger\BotSharp.Channel.FacebookMessenger.csproj" />
-    <ProjectReference Include="..\BotSharp.Channel.Weixin\BotSharp.Channel.Weixin.csproj" />
+    <ProjectReference Include="..\BotSharp.Core\BotSharp.Core.csproj" />
+    <ProjectReference Include="..\BotSharp.Platform.Articulate\BotSharp.Platform.Articulate.csproj" />
+    <ProjectReference Include="..\BotSharp.Platform.Dialogflow\BotSharp.Platform.Dialogflow.csproj" />
   </ItemGroup>
 
   <ItemGroup>
